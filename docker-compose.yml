@@ -13,3 +13,17 @@ services:
     depends_on:
       - postgres
       - redis
+    stdin_open: true
+    labels:
+      logging: 'true'
+  log-router:
+    privileged: true
+    image: "gliderlabs/logspout"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+    stdin_open: true
+    command:
+    - syslog+tcp://10.133.70.44:12901?filter.labels=logging:true
+
