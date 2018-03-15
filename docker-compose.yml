@@ -2,11 +2,13 @@ version: '2'
 services:
   redis:
     image: "redis:alpine"
+    restart: always
   postgres:
     image: "postgres:9.4"
     environment:
      POSTGRES_PASSWORD: 123456
      POSTGRES_USER: postgres
+     restart: always
   web:
     build: .
     image: "docker-registry.linecorp.com/lineth/panda:vie"
@@ -14,6 +16,7 @@ services:
       - postgres
       - redis
     stdin_open: true
+    restart: always
     labels:
       logging: 'true'
   log-router:
@@ -24,6 +27,14 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
     stdin_open: true
+    restart: always
     command:
-    - syslog+tcp://10.133.70.44:12901?filter.labels=logging:true
+      - syslog+tcp://10.133.70.44:12901?filter.labels=logging:true
+  monitoring:
+    privileged: true
+    image: "titpetric/netdata"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
 
